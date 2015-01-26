@@ -1,5 +1,6 @@
 /*!
  * ZRender, a high performance canvas library.
+ * -m, special for mobile.
  *  
  * Copyright (c) 2013, Baidu Inc.
  * All rights reserved.
@@ -9,20 +10,6 @@
  */
 define(
     function(require) {
-        /*
-         * HTML5 Canvas for Internet Explorer!
-         * Modern browsers like Firefox, Safari, Chrome and Opera support
-         * the HTML5 canvas tag to allow 2D command-based drawing.
-         * ExplorerCanvas brings the same functionality to Internet Explorer.
-         * To use, web developers only need to include a single script tag
-         * in their existing web pages.
-         *
-         * https://code.google.com/p/explorercanvas/
-         * http://explorercanvas.googlecode.com/svn/trunk/excanvas.js
-         */
-        // 核心代码会生成一个全局变量 G_vmlCanvasManager，模块改造后借用于快速判断canvas支持
-        require('./dep/excanvas');
-
         var util = require('./tool/util');
         var log = require('./tool/log');
         var guid = require('./tool/guid');
@@ -43,7 +30,7 @@ define(
         /**
          * @type {string}
          */
-        zrender.version = '2.0.7';
+        zrender.version = '1.0.0';
 
         /**
          * 创建zrender实例
