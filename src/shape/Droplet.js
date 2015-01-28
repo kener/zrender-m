@@ -119,24 +119,24 @@ define(
                     this.buildPath(null, style);
                 }
                 return this._pathProxy.fastBoundingRect();
-            },
-
-            isCover: function (x, y) {
-                var originPos = this.getTansform(x, y);
-                x = originPos[0];
-                y = originPos[1];
-                
-                var rect = this.getRect(this.style);
-                if (x >= rect.x
-                    && x <= (rect.x + rect.width)
-                    && y >= rect.y
-                    && y <= (rect.y + rect.height)
-                ) {
-                    return area.isInsidePath(
-                        this._pathProxy.pathCommands, this.style.lineWidth, this.style.brushType, x, y
-                    );
-                }
             }
+
+            // isCover: function (x, y) {
+            //     var originPos = this.getTansform(x, y);
+            //     x = originPos[0];
+            //     y = originPos[1];
+                
+            //     var rect = this.getRect(this.style);
+            //     if (x >= rect.x
+            //         && x <= (rect.x + rect.width)
+            //         && y >= rect.y
+            //         && y <= (rect.y + rect.height)
+            //     ) {
+            //         return area.isInsidePath(
+            //             this._pathProxy.pathCommands, this.style.lineWidth, this.style.brushType, x, y
+            //         );
+            //     }
+            // }
         };
 
         require('../tool/util').inherits(Droplet, Base);
