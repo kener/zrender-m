@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Global</title>
+    <title>Module: zrender/shape/tool/PathProxy</title>
     
     
     
@@ -2876,7 +2876,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="global.html">Global</h1>
+        <h1 class="page-title" data-filename="module-zrender_shape_tool_PathProxy.html">Module: zrender/shape/tool/PathProxy</h1>
         
 
 
@@ -2885,7 +2885,7 @@
     
 <header>
     <h2>
-    
+    zrender/shape/tool/PathProxy
     </h2>
     
 </header>  
@@ -2893,11 +2893,34 @@
 <article>
     <div class="container-overview">
     
+        
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="module:zrender/shape/tool/PathProxy">
+            
+            new require("zrender/shape/tool/PathProxy")<span class="signature">()</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            shape/util/PathProxy.js, line 54
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
     
     
-        
-        
-        
+
+    
+    
+    
+    
+    
+    
+    
 <dl class="details">
     
         
@@ -2922,7 +2945,98 @@
     
 </dl>
 
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+    
+    
+    
         
+            <div class="description"><p>Path 代理，可以在<code>buildPath</code>中用于替代<code>ctx</code>, 会保存每个path操作的命令到pathCommands属性中
+可以用于 isInsidePath 判断以及获取boundingRect</p></div>
+        
+        
+        
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    <dt class="tag-author">Author:</dt>
+    <dd class="tag-author">
+        <ul>
+            <li>pissang (http://www.github.com/pissang)</li>
+        </ul>
+    </dd>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+        
+        
+            <h3>Example</h3>
+            
+
+    
+    <pre class="prettyprint"><code>var SomeShape = function() {
+        this._pathProxy = new PathProxy();
+        ...
+    }
+    SomeShape.prototype.buildPath = function(ctx, style) {
+        this._pathProxy.begin(ctx);
+            .moveTo(style.x, style.y);
+            .lineTo(style.x1, style.y1);
+        ...
+            .closePath();
+    },
+    SomeShape.prototype.getRect = function(style) {
+        if (!style._rect) {
+            // 这里必须要在 buildPath 之后才能调用
+            style._rect = this._pathProxy.fastBoundingRect();
+        }
+        return this.style._rect;
+    },
+    SomeShape.prototype.isCover = function(x, y) {
+        var rect = this.getRect(this.style);
+        if (x >= rect.x
+            && x <= (rect.x + rect.width)
+            && y >= rect.y
+            && y <= (rect.y + rect.height)
+        ) {
+            return area.isInsidePath(
+                this._pathProxy.pathCommands, 0, 'fill', x, y
+            );
+        }
+    }</code></pre>
+    
+
         
     
     </div>
@@ -2938,25 +3052,25 @@
     
     
     
-    
-    
-    
-    
-        <h3 class="subsection-title">Type Definitions</h3>
+        <h3 class="subsection-title">Members</h3>
         
         <dl>
-                
+            
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="Vector2">
+        <h4 class="name" id="pathCommands">
             
-            Vector2<span class="type-signature type float32array">Float32Array</span> <span class="type-signature type array.<number>">Array.&lt;number></span> 
+            pathCommands<span class="type-signature type array.<object>">Array.&lt;Object></span> 
         </h4>
     </div>
     
     
 </dt>
 <dd>
+    
+    <div class="description">
+        <p>Path描述的数组，用于<code>isInsidePath</code>的判断</p>
+    </div>
     
     
     
@@ -2988,7 +3102,1286 @@
     
 </dd>
 
-            </dl>
+        </dl>
+    
+    
+    
+        <h3 class="subsection-title">Methods</h3>
+        
+        <dl>
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="arc">
+            
+            arc<span class="signature">(cx, cy, r, startAngle, endAngle, anticlockwise)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{module:zrender/shape/util/PathProxy}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            shape/util/PathProxy.js, line 205
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>cx</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>cy</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>r</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>startAngle</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>endAngle</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>anticlockwise</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="begin">
+            
+            begin<span class="signature">(ctx)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{module:zrender/shape/util/PathProxy}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            shape/util/PathProxy.js, line 130
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>ctx</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">CanvasRenderingContext2D</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="bezierCurveTo">
+            
+            bezierCurveTo<span class="signature">(x1, y1, x2, y2, x3, y3)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{module:zrender/shape/util/PathProxy}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            shape/util/PathProxy.js, line 173
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>x1</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>y1</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>x2</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>y2</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>x3</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>y3</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="closePath">
+            
+            closePath<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{module:zrender/shape/util/PathProxy}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            shape/util/PathProxy.js, line 234
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="fastBoundingRect">
+            
+            fastBoundingRect<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            shape/util/PathProxy.js, line 72
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>快速计算Path包围盒（并不是最小包围盒）</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="isEmpty">
+            
+            isEmpty<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            shape/util/PathProxy.js, line 246
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>是否没有Path命令</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="lineTo">
+            
+            lineTo<span class="signature">(x, y)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{module:zrender/shape/util/PathProxy}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            shape/util/PathProxy.js, line 156
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="moveTo">
+            
+            moveTo<span class="signature">(x, y)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{module:zrender/shape/util/PathProxy}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            shape/util/PathProxy.js, line 143
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="quadraticCurveTo">
+            
+            quadraticCurveTo<span class="signature">(x1, y1, x2, y2)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{module:zrender/shape/util/PathProxy}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            shape/util/PathProxy.js, line 188
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>x1</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>y1</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>x2</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>y2</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+        </dl>
+    
+    
     
     
     
@@ -3003,7 +4396,7 @@
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Thu Jan 29 2015 21:03:52 GMT+0800 (CST)
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Thu Jan 29 2015 21:03:54 GMT+0800 (CST)
         </footer>
     </div>
 </div>

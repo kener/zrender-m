@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Global</title>
+    <title>Module: zrender/shape/Trochold</title>
     
     
     
@@ -2876,7 +2876,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="global.html">Global</h1>
+        <h1 class="page-title" data-filename="module-zrender_shape_Trochold.html">Module: zrender/shape/Trochold</h1>
         
 
 
@@ -2885,7 +2885,7 @@
     
 <header>
     <h2>
-    
+    zrender/shape/Trochold
     </h2>
     
 </header>  
@@ -2893,11 +2893,79 @@
 <article>
     <div class="container-overview">
     
+        
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="module:zrender/shape/Trochold">
+            
+            new require("zrender/shape/Trochold")<span class="signature">(options)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            shape/Trochoid.js, line 56
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
     
     
+
+    
+    
+    
+    
+    
         
-        
-        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
 <dl class="details">
     
         
@@ -2922,7 +2990,80 @@
     
 </dl>
 
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+    
+    
+    
         
+            <div class="description"><p>内外旋轮曲线</p></div>
+        
+        
+        
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    <dt class="tag-author">Author:</dt>
+    <dd class="tag-author">
+        <ul>
+            <li>Neil (杨骥, 511415343@qq.com)</li>
+        </ul>
+    </dd>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+        
+        
+            <h3>Example</h3>
+            
+
+    
+    <pre class="prettyprint"><code>var Trochold = require('zrender/shape/Trochold');
+    var shape = new Trochold({
+        style: {
+            x: 100,
+            y: 100,
+            r: 50,
+            r0: 30,
+            d: 50,
+            strokeColor: '#eee',
+            text: 'trochold'
+        }
+    });
+    zr.addShape(shape);</code></pre>
+    
+
         
     
     </div>
@@ -2938,7 +3079,371 @@
     
     
     
+        <h3 class="subsection-title">Members</h3>
+        
+        <dl>
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="highlightStyle">
+            
+            highlightStyle<span class="type-signature type module:zrender/shape/trochold~itrocholdstyle"><a href="module-zrender_shape_Trochold.html#~ITrocholdStyle">module:zrender/shape/Trochold~ITrocholdStyle</a></span> 
+        </h4>
+    </div>
     
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>内外旋轮曲线高亮绘制样式</p>
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="style">
+            
+            style<span class="type-signature type module:zrender/shape/trochold~itrocholdstyle"><a href="module-zrender_shape_Trochold.html#~ITrocholdStyle">module:zrender/shape/Trochold~ITrocholdStyle</a></span> 
+        </h4>
+    </div>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>内外旋轮曲线绘制样式</p>
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        </dl>
+    
+    
+    
+        <h3 class="subsection-title">Methods</h3>
+        
+        <dl>
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="buildPath">
+            
+            buildPath<span class="signature">(ctx, style)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            shape/Trochoid.js, line 79
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>创建内外旋轮曲线路径</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>ctx</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">CanvasRenderingContext2D</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>style</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-zrender_shape_Trochold.html#~ITrocholdStyle">module:zrender/shape/Trochold~ITrocholdStyle</a></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="getRect">
+            
+            getRect<span class="signature">(style)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="module-zrender_shape_Base.html#~IBoundingRect">module:zrender/shape/Base~IBoundingRect</a>}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            shape/Trochoid.js, line 136
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>返回内外旋轮曲线包围盒矩形</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>style</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-zrender_shape_Trochold.html#~ITrocholdStyle">module:zrender/shape/Trochold~ITrocholdStyle</a></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+        </dl>
     
     
     
@@ -2948,9 +3453,9 @@
                 
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="Vector2">
+        <h4 class="name" id="~ITrocholdStyle">
             
-            Vector2<span class="type-signature type float32array">Float32Array</span> <span class="type-signature type array.<number>">Array.&lt;number></span> 
+            ITrocholdStyle<span class="type-signature type object">Object</span> 
         </h4>
     </div>
     
@@ -2961,6 +3466,752 @@
     
     
 <dl class="details">
+    
+        
+        <h5 class="subsection-title">Properties:</h5>
+        
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		<th>Default</th>
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last"><p>中心x坐标</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last"><p>中心y坐标</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>r</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last"><p>固定圆半径 内旋曲线时必须大于转动圆半径</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>r0</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last"><p>转动圆半径</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>d</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last"><p>点到内部转动圆的距离，等于r时曲线为摆线</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>location</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    'in'
+                
+                </td>
+            
+            
+            <td class="description last"><p>内旋 out 外旋</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>strokeColor</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    '#000000'
+                
+                </td>
+            
+            
+            <td class="description last"><p>描边颜色</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>lineCape</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    'butt'
+                
+                </td>
+            
+            
+            <td class="description last"><p>线帽样式，可以是 butt, round, square</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>lineWidth</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    1
+                
+                </td>
+            
+            
+            <td class="description last"><p>描边宽度</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>opacity</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    1
+                
+                </td>
+            
+            
+            <td class="description last"><p>绘制透明度</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>shadowBlur</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+            
+            <td class="description last"><p>阴影模糊度，大于0有效</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>shadowColor</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    '#000000'
+                
+                </td>
+            
+            
+            <td class="description last"><p>阴影颜色</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>shadowOffsetX</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+            
+            <td class="description last"><p>阴影横向偏移</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>shadowOffsetY</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+            
+            <td class="description last"><p>阴影纵向偏移</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last"><p>图形中的附加文本</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>textColor</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    '#000000'
+                
+                </td>
+            
+            
+            <td class="description last"><p>文本颜色</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>textFont</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last"><p>附加文本样式，eg:'bold 18px verdana'</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>textPosition</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    'end'
+                
+                </td>
+            
+            
+            <td class="description last"><p>附加文本位置, 可以是 inside, left, right, top, bottom</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>textAlign</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last"><p>默认根据textPosition自动设置，附加文本水平对齐。
+                               可以是start, end, left, right, center</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>textBaseline</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last"><p>默认根据textPosition自动设置，附加文本垂直对齐。
+                               可以是top, bottom, middle, alphabetic, hanging, ideographic</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table></dl>
+        
     
         
     
@@ -3003,7 +4254,7 @@
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Thu Jan 29 2015 21:03:52 GMT+0800 (CST)
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Thu Jan 29 2015 21:03:54 GMT+0800 (CST)
         </footer>
     </div>
 </div>

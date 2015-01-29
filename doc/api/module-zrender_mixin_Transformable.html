@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Global</title>
+    <title>Module: zrender/mixin/Transformable</title>
     
     
     
@@ -2876,7 +2876,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="global.html">Global</h1>
+        <h1 class="page-title" data-filename="module-zrender_mixin_Transformable.html">Module: zrender/mixin/Transformable</h1>
         
 
 
@@ -2885,7 +2885,7 @@
     
 <header>
     <h2>
-    
+    zrender/mixin/Transformable
     </h2>
     
 </header>  
@@ -2893,8 +2893,77 @@
 <article>
     <div class="container-overview">
     
+        
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="module:zrender/mixin/Transformable">
+            
+            new require("zrender/mixin/Transformable")<span class="signature">()</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            mixin/Transformable.js, line 27
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
     
     
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+    
+    
+    
+        
+            <div class="description"><p>提供变换扩展</p></div>
         
         
         
@@ -2907,6 +2976,13 @@
 
     
     
+    
+    <dt class="tag-author">Author:</dt>
+    <dd class="tag-author">
+        <ul>
+            <li>pissang (https://www.github.com/pissang)</li>
+        </ul>
+    </dd>
     
     
     
@@ -2938,25 +3014,25 @@
     
     
     
-    
-    
-    
-    
-        <h3 class="subsection-title">Type Definitions</h3>
+        <h3 class="subsection-title">Members</h3>
         
         <dl>
-                
+            
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="Vector2">
+        <h4 class="name" id="needTransform">
             
-            Vector2<span class="type-signature type float32array">Float32Array</span> <span class="type-signature type array.<number>">Array.&lt;number></span> 
+            <span class="type-signature ">readonly</span>needTransform<span class="type-signature type boolean">boolean</span> 
         </h4>
     </div>
     
     
 </dt>
 <dd>
+    
+    <div class="description">
+        <p>是否有坐标变换</p>
+    </div>
     
     
     
@@ -2988,7 +3064,546 @@
     
 </dd>
 
-            </dl>
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="position">
+            
+            position<span class="type-signature type array.<number>">Array.&lt;number></span> 
+        </h4>
+    </div>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>平移</p>
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>[0, 0]</li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="rotation">
+            
+            rotation<span class="type-signature type array.<number>">Array.&lt;number></span> 
+        </h4>
+    </div>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>旋转，可以通过数组二三项指定旋转的原点</p>
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>[0, 0, 0]</li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="scale">
+            
+            scale<span class="type-signature type array.<number>">Array.&lt;number></span> 
+        </h4>
+    </div>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>缩放，可以通过数组三四项指定缩放的原点</p>
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>[1, 1, 0, 0]</li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        </dl>
+    
+    
+    
+        <h3 class="subsection-title">Methods</h3>
+        
+        <dl>
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="decomposeTransform">
+            
+            decomposeTransform<span class="signature">()</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            mixin/Transformable.js, line 217
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>分解<code>transform</code>矩阵到<code>position</code>, <code>rotation</code>, <code>scale</code></p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="lookAt">
+            
+            lookAt<span class="signature">(target)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            mixin/Transformable.js, line 188
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>设置图形的朝向</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>target</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;number></span>
+|
+
+<span class="param-type">Float32Array</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="setTransform">
+            
+            setTransform<span class="signature">(ctx)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            mixin/Transformable.js, line 173
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>将自己的transform应用到context上</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>ctx</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Context2D</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="updateTransform">
+            
+            updateTransform<span class="signature">()</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            mixin/Transformable.js, line 80
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>判断是否需要有坐标变换，更新needTransform属性。
+如果有坐标变换, 则从position, rotation, scale以及父节点的transform计算出自身的transform矩阵</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        </dl>
+    
+    
     
     
     
@@ -3003,7 +3618,7 @@
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Thu Jan 29 2015 21:03:52 GMT+0800 (CST)
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Thu Jan 29 2015 21:03:53 GMT+0800 (CST)
         </footer>
     </div>
 </div>

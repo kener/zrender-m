@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Global</title>
+    <title>Module: zrender/tool/matrix</title>
     
     
     
@@ -2876,7 +2876,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="global.html">Global</h1>
+        <h1 class="page-title" data-filename="module-zrender_tool_matrix.html">Module: zrender/tool/matrix</h1>
         
 
 
@@ -2885,7 +2885,7 @@
     
 <header>
     <h2>
-    
+    zrender/tool/matrix
     </h2>
     
 </header>  
@@ -2896,6 +2896,8 @@
     
     
         
+            <div class="description"><p>3x2矩阵操作类</p></div>
+        
         
         
 <dl class="details">
@@ -2940,25 +2942,114 @@
     
     
     
-    
-    
-        <h3 class="subsection-title">Type Definitions</h3>
+        <h3 class="subsection-title">Methods</h3>
         
         <dl>
-                
+            
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="Vector2">
+        <h4 class="name" id=".copy">
             
-            Vector2<span class="type-signature type float32array">Float32Array</span> <span class="type-signature type array.<number>">Array.&lt;number></span> 
+            <span class="type-signature static">static</span>module:zrender/tool/matrix.copy<span class="signature">(out, m)</span>
         </h4>
-    </div>
     
+        
+        <div class="tag-source">
+            tool/matrix.js, line 40
+        </div>
+        
+    </div>
+
     
 </dt>
 <dd>
     
     
+    <div class="description">
+        <p>复制矩阵</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>out</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>m</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
     
 <dl class="details">
     
@@ -2986,9 +3077,1213 @@
 
     
     
+
+    
+
+    
+    
+    
+    
+    
+    
+    
 </dd>
 
-            </dl>
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id=".create">
+            
+            <span class="type-signature static">static</span>module:zrender/tool/matrix.create<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Float32Array|Array.&lt;number>}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            tool/matrix.js, line 16
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>创建一个单位矩阵</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id=".identity">
+            
+            <span class="type-signature static">static</span>module:zrender/tool/matrix.identity<span class="signature">(out)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            tool/matrix.js, line 26
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>设置矩阵为单位矩阵</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>out</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id=".invert">
+            
+            <span class="type-signature static">static</span>module:zrender/tool/matrix.invert<span class="signature">(out, a)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            tool/matrix.js, line 125
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>求逆矩阵</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>out</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>a</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id=".mul">
+            
+            <span class="type-signature static">static</span>module:zrender/tool/matrix.mul<span class="signature">(out, m1, m2)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            tool/matrix.js, line 55
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>矩阵相乘</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>out</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>m1</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>m2</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id=".mulVector">
+            
+            <span class="type-signature static">static</span>module:zrender/tool/matrix.mulVector<span class="signature">(out, a, v)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            tool/matrix.js, line 155
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>矩阵左乘向量</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>out</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>a</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>v</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id=".rotate">
+            
+            <span class="type-signature static">static</span>module:zrender/tool/matrix.rotate<span class="signature">(out, a, rad)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            tool/matrix.js, line 85
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>旋转变换</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>out</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>a</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>rad</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id=".scale">
+            
+            <span class="type-signature static">static</span>module:zrender/tool/matrix.scale<span class="signature">(out, a, v)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            tool/matrix.js, line 109
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>缩放变换</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>out</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>a</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>v</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id=".translate">
+            
+            <span class="type-signature static">static</span>module:zrender/tool/matrix.translate<span class="signature">(out, a, v)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            tool/matrix.js, line 70
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>平移变换</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>out</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>a</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>v</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Float32Array</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        </dl>
+    
+    
     
     
     
@@ -3003,7 +4298,7 @@
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Thu Jan 29 2015 21:03:52 GMT+0800 (CST)
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Thu Jan 29 2015 21:03:54 GMT+0800 (CST)
         </footer>
     </div>
 </div>
