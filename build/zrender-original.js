@@ -19,6 +19,13 @@ define(
             '[object CanvasGradient]': 1
         };
 
+        var objToString = Object.prototype.toString;
+
+        function isDom(obj) {
+            return obj && obj.nodeType === 1
+                   && typeof(obj.nodeName) == 'string';
+        }
+        
         /**
          * 对一个object进行深度拷贝
          *
@@ -35,9 +42,9 @@ define(
                     }
                 }
                 else if (
-                    !BUILTIN_OBJECT[Object.prototype.toString.call(source)]
+                    !BUILTIN_OBJECT[objToString.call(source)]
                     // 是否为 dom 对象
-                    && ! (source.nodeType === 1 && typeof(source.nodeName) === 'string')
+                    && !isDom(source)
                 ) {
                     result = {};
                     for (var key in source) {
@@ -55,8 +62,11 @@ define(
 
         function mergeItem(target, source, key, overwrite) {
             if (source.hasOwnProperty(key)) {
-                if (typeof target[key] == 'object'
-                    && !BUILTIN_OBJECT[ Object.prototype.toString.call(target[key]) ]
+                var targetProp = target[key];
+                if (typeof targetProp == 'object'
+                    && !BUILTIN_OBJECT[objToString.call(targetProp)]
+                    // 是否为 dom 对象
+                    && !isDom(targetProp)
                 ) {
                     // 如果需要递归覆盖，就递归调用merge
                     merge(
@@ -2210,518 +2220,6 @@ define(
 );
 
 /**
- * 曲线辅助模块
- * @module zrender/tool/curve
- * @author pissang(https://www.github.com/pissang)
- */
-define('zrender/tool/curve',['require','./vector'],function(require) {
-
-    var vector = require('./vector');
-
-    
-
-    var EPSILON = 1e-4;
-
-    var THREE_SQRT = Math.sqrt(3);
-    var ONE_THIRD = 1 / 3;
-
-    // 临时变量
-    var _v0 = vector.create();
-    var _v1 = vector.create();
-    var _v2 = vector.create();
-    // var _v3 = vector.create();
-
-    function isAroundZero(val) {
-        return val > -EPSILON && val < EPSILON;
-    }
-    function isNotAroundZero(val) {
-        return val > EPSILON || val < -EPSILON;
-    }
-    /*
-    function evalCubicCoeff(a, b, c, d, t) {
-        return ((a * t + b) * t + c) * t + d;
-    }
-    */
-
-    /** 
-     * 计算三次贝塞尔值
-     * @memberOf module:zrender/tool/curve
-     * @param  {number} p0
-     * @param  {number} p1
-     * @param  {number} p2
-     * @param  {number} p3
-     * @param  {number} t
-     * @return {number}
-     */
-    function cubicAt(p0, p1, p2, p3, t) {
-        var onet = 1 - t;
-        return onet * onet * (onet * p0 + 3 * t * p1)
-             + t * t * (t * p3 + 3 * onet * p2);
-    }
-
-    /** 
-     * 计算三次贝塞尔导数值
-     * @memberOf module:zrender/tool/curve
-     * @param  {number} p0
-     * @param  {number} p1
-     * @param  {number} p2
-     * @param  {number} p3
-     * @param  {number} t
-     * @return {number}
-     */
-    function cubicDerivativeAt(p0, p1, p2, p3, t) {
-        var onet = 1 - t;
-        return 3 * (
-            ((p1 - p0) * onet + 2 * (p2 - p1) * t) * onet
-            + (p3 - p2) * t * t
-        );
-    }
-
-    /**
-     * 计算三次贝塞尔方程根，使用盛金公式
-     * @memberOf module:zrender/tool/curve
-     * @param  {number} p0
-     * @param  {number} p1
-     * @param  {number} p2
-     * @param  {number} p3
-     * @param  {number} val
-     * @param  {Array.<number>} roots
-     * @return {number} 有效根数目
-     */
-    function cubicRootAt(p0, p1, p2, p3, val, roots) {
-        // Evaluate roots of cubic functions
-        var a = p3 + 3 * (p1 - p2) - p0;
-        var b = 3 * (p2 - p1 * 2 + p0);
-        var c = 3 * (p1  - p0);
-        var d = p0 - val;
-
-        var A = b * b - 3 * a * c;
-        var B = b * c - 9 * a * d;
-        var C = c * c - 3 * b * d;
-
-        var n = 0;
-
-        if (isAroundZero(A) && isAroundZero(B)) {
-            if (isAroundZero(b)) {
-                roots[0] = 0;
-            }
-            else {
-                var t1 = -c / b;  //t1, t2, t3, b is not zero
-                if (t1 >=0 && t1 <= 1) {
-                    roots[n++] = t1;
-                }
-            }
-        }
-        else {
-            var disc = B * B - 4 * A * C;
-
-            if (isAroundZero(disc)) {
-                var K = B / A;
-                var t1 = -b / a + K;  // t1, a is not zero
-                var t2 = -K / 2;  // t2, t3
-                if (t1 >= 0 && t1 <= 1) {
-                    roots[n++] = t1;
-                }
-                if (t2 >= 0 && t2 <= 1) {
-                    roots[n++] = t2;
-                }
-            }
-            else if (disc > 0) {
-                var discSqrt = Math.sqrt(disc);
-                var Y1 = A * b + 1.5 * a * (-B + discSqrt);
-                var Y2 = A * b + 1.5 * a * (-B - discSqrt);
-                if (Y1 < 0) {
-                    Y1 = -Math.pow(-Y1, ONE_THIRD);
-                }
-                else {
-                    Y1 = Math.pow(Y1, ONE_THIRD);
-                }
-                if (Y2 < 0) {
-                    Y2 = -Math.pow(-Y2, ONE_THIRD);
-                }
-                else {
-                    Y2 = Math.pow(Y2, ONE_THIRD);
-                }
-                var t1 = (-b - (Y1 + Y2)) / (3 * a);
-                if (t1 >= 0 && t1 <= 1) {
-                    roots[n++] = t1;
-                }
-            }
-            else {
-                var T = (2 * A * b - 3 * a * B) / (2 * Math.sqrt(A * A * A));
-                var theta = Math.acos(T) / 3;
-                var ASqrt = Math.sqrt(A);
-                var tmp = Math.cos(theta);
-                
-                var t1 = (-b - 2 * ASqrt * tmp) / (3 * a);
-                var t2 = (-b + ASqrt * (tmp + THREE_SQRT * Math.sin(theta))) / (3 * a);
-                var t3 = (-b + ASqrt * (tmp - THREE_SQRT * Math.sin(theta))) / (3 * a);
-                if (t1 >= 0 && t1 <= 1) {
-                    roots[n++] = t1;
-                }
-                if (t2 >= 0 && t2 <= 1) {
-                    roots[n++] = t2;
-                }
-                if (t3 >= 0 && t3 <= 1) {
-                    roots[n++] = t3;
-                }
-            }
-        }
-        return n;
-    }
-
-    /**
-     * 计算三次贝塞尔方程极限值的位置
-     * @memberOf module:zrender/tool/curve
-     * @param  {number} p0
-     * @param  {number} p1
-     * @param  {number} p2
-     * @param  {number} p3
-     * @param  {Array.<number>} extrema
-     * @return {number} 有效数目
-     */
-    function cubicExtrema(p0, p1, p2, p3, extrema) {
-        var b = 6 * p2 - 12 * p1 + 6 * p0;
-        var a = 9 * p1 + 3 * p3 - 3 * p0 - 9 * p2;
-        var c = 3 * p1 - 3 * p0;
-
-        var n = 0;
-        if (isAroundZero(a)) {
-            if (isNotAroundZero(b)) {
-                var t1 = -c / b;
-                if (t1 >= 0 && t1 <=1) {
-                    extrema[n++] = t1;
-                }
-            }
-        }
-        else {
-            var disc = b * b - 4 * a * c;
-            if (isAroundZero(disc)) {
-                extrema[0] = -b / (2 * a);
-            }
-            else if (disc > 0) {
-                var discSqrt = Math.sqrt(disc);
-                var t1 = (-b + discSqrt) / (2 * a);
-                var t2 = (-b - discSqrt) / (2 * a);
-                if (t1 >= 0 && t1 <= 1) {
-                    extrema[n++] = t1;
-                }
-                if (t2 >= 0 && t2 <= 1) {
-                    extrema[n++] = t2;
-                }
-            }
-        }
-        return n;
-    }
-
-    /**
-     * 细分三次贝塞尔曲线
-     * @memberOf module:zrender/tool/curve
-     * @param  {number} p0
-     * @param  {number} p1
-     * @param  {number} p2
-     * @param  {number} p3
-     * @param  {number} t
-     * @param  {Array.<number>} out
-     */
-    function cubicSubdivide(p0, p1, p2, p3, t, out) {
-        var p01 = (p1 - p0) * t + p0;
-        var p12 = (p2 - p1) * t + p1;
-        var p23 = (p3 - p2) * t + p2;
-
-        var p012 = (p12 - p01) * t + p01;
-        var p123 = (p23 - p12) * t + p12;
-
-        var p0123 = (p123 - p012) * t + p012;
-        // Seg0
-        out[0] = p0;
-        out[1] = p01;
-        out[2] = p012;
-        out[3] = p0123;
-        // Seg1
-        out[4] = p0123;
-        out[5] = p123;
-        out[6] = p23;
-        out[7] = p3;
-    }
-
-    /**
-     * 投射点到三次贝塞尔曲线上，返回投射距离。
-     * 投射点有可能会有一个或者多个，这里只返回其中距离最短的一个。
-     * @param {number} x0
-     * @param {number} y0
-     * @param {number} x1
-     * @param {number} y1
-     * @param {number} x2
-     * @param {number} y2
-     * @param {number} x3
-     * @param {number} y3
-     * @param {number} x
-     * @param {number} y
-     * @param {Array.<number>} [out] 投射点
-     * @return {number}
-     */
-    function cubicProjectPoint(
-        x0, y0, x1, y1, x2, y2, x3, y3,
-        x, y, out
-    ) {
-        // http://pomax.github.io/bezierinfo/#projections
-        var t;
-        var interval = 0.005;
-        var d = Infinity;
-
-        _v0[0] = x;
-        _v0[1] = y;
-
-        // 先粗略估计一下可能的最小距离的 t 值
-        // PENDING
-        for (var _t = 0; _t < 1; _t += 0.05) {
-            _v1[0] = cubicAt(x0, x1, x2, x3, _t);
-            _v1[1] = cubicAt(y0, y1, y2, y3, _t);
-            var d1 = vector.distSquare(_v0, _v1);
-            if (d1 < d) {
-                t = _t;
-                d = d1;
-            }
-        }
-        d = Infinity;
-
-        // At most 32 iteration
-        for (var i = 0; i < 32; i++) {
-            if (interval < EPSILON) {
-                break;
-            }
-            var prev = t - interval;
-            var next = t + interval;
-            // t - interval
-            _v1[0] = cubicAt(x0, x1, x2, x3, prev);
-            _v1[1] = cubicAt(y0, y1, y2, y3, prev);
-
-            var d1 = vector.distSquare(_v1, _v0);
-
-            if (prev >= 0 && d1 < d) {
-                t = prev;
-                d = d1;
-            }
-            else {
-                // t + interval
-                _v2[0] = cubicAt(x0, x1, x2, x3, next);
-                _v2[1] = cubicAt(y0, y1, y2, y3, next);
-                var d2 = vector.distSquare(_v2, _v0);
-
-                if (next <= 1 && d2 < d) {
-                    t = next;
-                    d = d2;
-                }
-                else {
-                    interval *= 0.5;
-                }
-            }
-        }
-        // t
-        if (out) {
-            out[0] = cubicAt(x0, x1, x2, x3, t);
-            out[1] = cubicAt(y0, y1, y2, y3, t);   
-        }
-        // console.log(interval, i);
-        return Math.sqrt(d);
-    }
-
-    /**
-     * 计算二次方贝塞尔值
-     * @param  {number} p0
-     * @param  {number} p1
-     * @param  {number} p2
-     * @param  {number} t
-     * @return {number}
-     */
-    function quadraticAt(p0, p1, p2, t) {
-        var onet = 1 - t;
-        return onet * (onet * p0 + 2 * t * p1) + t * t * p2;
-    }
-
-    /**
-     * 计算二次方贝塞尔导数值
-     * @param  {number} p0
-     * @param  {number} p1
-     * @param  {number} p2
-     * @param  {number} t
-     * @return {number}
-     */
-    function quadraticDerivativeAt(p0, p1, p2, t) {
-        return 2 * ((1 - t) * (p1 - p0) + t * (p2 - p1));
-    }
-
-    /**
-     * 计算二次方贝塞尔方程根
-     * @param  {number} p0
-     * @param  {number} p1
-     * @param  {number} p2
-     * @param  {number} t
-     * @param  {Array.<number>} roots
-     * @return {number} 有效根数目
-     */
-    function quadraticRootAt(p0, p1, p2, val, roots) {
-        var a = p0 - 2 * p1 + p2;
-        var b = 2 * (p1 - p0);
-        var c = p0 - val;
-
-        var n = 0;
-        if (isAroundZero(a)) {
-            if (isNotAroundZero(b)) {
-                var t1 = -c / b;
-                if (t1 >= 0 && t1 <= 1) {
-                    roots[n++] = t1;
-                }
-            }
-        }
-        else {
-            var disc = b * b - 4 * a * c;
-            if (isAroundZero(disc)) {
-                var t1 = -b / (2 * a);
-                if (t1 >= 0 && t1 <= 1) {
-                    roots[n++] = t1;
-                }
-            }
-            else if (disc > 0) {
-                var discSqrt = Math.sqrt(disc);
-                var t1 = (-b + discSqrt) / (2 * a);
-                var t2 = (-b - discSqrt) / (2 * a);
-                if (t1 >= 0 && t1 <= 1) {
-                    roots[n++] = t1;
-                }
-                if (t2 >= 0 && t2 <= 1) {
-                    roots[n++] = t2;
-                }
-            }
-        }
-        return n;
-    }
-
-    /**
-     * 计算二次贝塞尔方程极限值
-     * @memberOf module:zrender/tool/curve
-     * @param  {number} p0
-     * @param  {number} p1
-     * @param  {number} p2
-     * @return {number}
-     */
-    function quadraticExtremum(p0, p1, p2) {
-        var divider = p0 + p2 - 2 * p1;
-        if (divider === 0) {
-            // p1 is center of p0 and p2 
-            return 0.5;
-        }
-        else {
-            return (p0 - p1) / divider;
-        }
-    }
-
-    /**
-     * 投射点到二次贝塞尔曲线上，返回投射距离。
-     * 投射点有可能会有一个或者多个，这里只返回其中距离最短的一个。
-     * @param {number} x0
-     * @param {number} y0
-     * @param {number} x1
-     * @param {number} y1
-     * @param {number} x2
-     * @param {number} y2
-     * @param {number} x
-     * @param {number} y
-     * @param {Array.<number>} out 投射点
-     * @return {number}
-     */
-    function quadraticProjectPoint(
-        x0, y0, x1, y1, x2, y2,
-        x, y, out
-    ) {
-        // http://pomax.github.io/bezierinfo/#projections
-        var t;
-        var interval = 0.005;
-        var d = Infinity;
-
-        _v0[0] = x;
-        _v0[1] = y;
-
-        // 先粗略估计一下可能的最小距离的 t 值
-        // PENDING
-        for (var _t = 0; _t < 1; _t += 0.05) {
-            _v1[0] = quadraticAt(x0, x1, x2, _t);
-            _v1[1] = quadraticAt(y0, y1, y2, _t);
-            var d1 = vector.distSquare(_v0, _v1);
-            if (d1 < d) {
-                t = _t;
-                d = d1;
-            }
-        }
-        d = Infinity;
-
-        // At most 32 iteration
-        for (var i = 0; i < 32; i++) {
-            if (interval < EPSILON) {
-                break;
-            }
-            var prev = t - interval;
-            var next = t + interval;
-            // t - interval
-            _v1[0] = quadraticAt(x0, x1, x2, prev);
-            _v1[1] = quadraticAt(y0, y1, y2, prev);
-
-            var d1 = vector.distSquare(_v1, _v0);
-
-            if (prev >= 0 && d1 < d) {
-                t = prev;
-                d = d1;
-            }
-            else {
-                // t + interval
-                _v2[0] = quadraticAt(x0, x1, x2, next);
-                _v2[1] = quadraticAt(y0, y1, y2, next);
-                var d2 = vector.distSquare(_v2, _v0);
-                if (next <= 1 && d2 < d) {
-                    t = next;
-                    d = d2;
-                }
-                else {
-                    interval *= 0.5;
-                }
-            }
-        }
-        // t
-        if (out) {
-            out[0] = quadraticAt(x0, x1, x2, t);
-            out[1] = quadraticAt(y0, y1, y2, t);   
-        }
-        // console.log(interval, i);
-        return Math.sqrt(d);
-    }
-
-    return {
-
-        cubicAt: cubicAt,
-
-        cubicDerivativeAt: cubicDerivativeAt,
-
-        cubicRootAt: cubicRootAt,
-
-        cubicExtrema: cubicExtrema,
-
-        cubicSubdivide: cubicSubdivide,
-
-        cubicProjectPoint: cubicProjectPoint,
-
-        quadraticAt: quadraticAt,
-
-        quadraticDerivativeAt: quadraticDerivativeAt,
-
-        quadraticRootAt: quadraticRootAt,
-
-        quadraticExtremum: quadraticExtremum,
-
-        quadraticProjectPoint: quadraticProjectPoint
-    };
-});
-/**
  * zrender: 图形空间辅助类
  *
  * @author Kener (@Kener-林峰, kener.linfeng@gmail.com)
@@ -2732,12 +2230,12 @@ define('zrender/tool/curve',['require','./vector'],function(require) {
  * getTextWidth：测算单行文本宽度
  */
 define(
-    'zrender/tool/area',['require','./util','./curve'],function (require) {
+    'zrender/tool/area',['require','./util'],function (require) {
 
         
 
         var util = require('./util');
-        var curve = require('./curve');
+        // var curve = require('./curve');
 
         var _ctx;
         
@@ -2747,15 +2245,15 @@ define(
         var _textHeightCacheCounter = 0;
         var TEXT_CACHE_MAX = 5000;
             
-        var PI2 = Math.PI * 2;
+        // var PI2 = Math.PI * 2;
 
-        function normalizeRadian(angle) {
-            angle %= PI2;
-            if (angle < 0) {
-                angle += PI2;
-            }
-            return angle;
-        }
+        // function normalizeRadian(angle) {
+        //     angle %= PI2;
+        //     if (angle < 0) {
+        //         angle += PI2;
+        //     }
+        //     return angle;
+        // }
         /**
          * 包含判断
          *
@@ -2769,7 +2267,7 @@ define(
                 // 无参数或不支持类型
                 return false;
             }
-            var zoneType = shape.type;
+            // var zoneType = shape.type;
 
             _ctx = _ctx || util.getContext();
 
@@ -2779,27 +2277,27 @@ define(
                 return _mathReturn;
             }
 
-            if (shape.buildPath && _ctx.isPointInPath) {
+            // if (shape.buildPath && _ctx.isPointInPath) {
                 return _buildPathMethod(shape, _ctx, area, x, y);
-            }
+            // }
 
             // 上面的方法都行不通时
-            switch (zoneType) {
-                case 'ellipse': // Todo，不精确
-                    return true;
-                // 旋轮曲线  不准确
-                case 'trochoid':
-                    var _r = area.location == 'out'
-                            ? area.r1 + area.r2 + area.d
-                            : area.r1 - area.r2 + area.d;
-                    return isInsideCircle(area, x, y, _r);
-                // 玫瑰线 不准确
-                case 'rose' :
-                    return isInsideCircle(area, x, y, area.maxr);
-                // 路径，椭圆，曲线等-----------------13
-                default:
-                    return false;   // Todo，暂不支持
-            }
+            // switch (zoneType) {
+            //     case 'ellipse': // Todo，不精确
+            //         return true;
+            //     // 旋轮曲线  不准确
+            //     case 'trochoid':
+            //         var _r = area.location == 'out'
+            //                 ? area.r1 + area.r2 + area.d
+            //                 : area.r1 - area.r2 + area.d;
+            //         return isInsideCircle(area, x, y, _r);
+            //     // 玫瑰线 不准确
+            //     case 'rose' :
+            //         return isInsideCircle(area, x, y, area.maxr);
+            //     // 路径，椭圆，曲线等-----------------13
+            //     default:
+            //         return false;   // Todo，暂不支持
+            // }
         }
 
         /**
@@ -2815,23 +2313,23 @@ define(
             var zoneType = shape.type;
             // 在矩形内则部分图形需要进一步判断
             switch (zoneType) {
-                // 贝塞尔曲线
-                case 'bezier-curve':
-                    if (typeof(area.cpX2) === 'undefined') {
-                        return isInsideQuadraticStroke(
-                            area.xStart, area.yStart,
-                            area.cpX1, area.cpY1, 
-                            area.xEnd, area.yEnd,
-                            area.lineWidth, x, y
-                        );
-                    }
-                    return isInsideCubicStroke(
-                        area.xStart, area.yStart,
-                        area.cpX1, area.cpY1, 
-                        area.cpX2, area.cpY2, 
-                        area.xEnd, area.yEnd,
-                        area.lineWidth, x, y
-                    );
+                // // 贝塞尔曲线
+                // case 'bezier-curve':
+                //     if (typeof(area.cpX2) === 'undefined') {
+                //         return isInsideQuadraticStroke(
+                //             area.xStart, area.yStart,
+                //             area.cpX1, area.cpY1, 
+                //             area.xEnd, area.yEnd,
+                //             area.lineWidth, x, y
+                //         );
+                //     }
+                //     return isInsideCubicStroke(
+                //         area.xStart, area.yStart,
+                //         area.cpX1, area.cpY1, 
+                //         area.cpX2, area.cpY2, 
+                //         area.xEnd, area.yEnd,
+                //         area.lineWidth, x, y
+                //     );
                 // 线
                 case 'line':
                     return isInsideLine(
@@ -2839,45 +2337,45 @@ define(
                         area.xEnd, area.yEnd,
                         area.lineWidth, x, y
                     );
-                // 折线
-                case 'polyline':
-                    return isInsidePolyline(
-                        area.pointList, area.lineWidth, x, y
-                    );
-                // 圆环
-                case 'ring':
-                    return isInsideRing(
-                        area.x, area.y, area.r0, area.r, x, y
-                    );
-                // 圆形
-                case 'circle':
-                    return isInsideCircle(
-                        area.x, area.y, area.r, x, y
-                    );
-                // 扇形
-                case 'sector':
-                    var startAngle = area.startAngle * Math.PI / 180;
-                    var endAngle = area.endAngle * Math.PI / 180;
-                    if (!area.clockWise) {
-                        startAngle = -startAngle;
-                        endAngle = -endAngle;
-                    }
-                    return isInsideSector(
-                        area.x, area.y, area.r0, area.r,
-                        startAngle, endAngle,
-                        !area.clockWise,
-                        x, y
-                    );
-                // 多边形
-                case 'path':
-                    return area.pathArray && isInsidePath(
-                        area.pathArray, Math.max(area.lineWidth, 5),
-                        area.brushType, x, y
-                    );
-                case 'polygon':
-                case 'star':
-                case 'isogon':
-                    return isInsidePolygon(area.pointList, x, y);
+                // // 折线
+                // case 'polyline':
+                //     return isInsidePolyline(
+                //         area.pointList, area.lineWidth, x, y
+                //     );
+                // // 圆环
+                // case 'ring':
+                //     return isInsideRing(
+                //         area.x, area.y, area.r0, area.r, x, y
+                //     );
+                // // 圆形
+                // case 'circle':
+                //     return isInsideCircle(
+                //         area.x, area.y, area.r, x, y
+                //     );
+                // // 扇形
+                // case 'sector':
+                //     var startAngle = area.startAngle * Math.PI / 180;
+                //     var endAngle = area.endAngle * Math.PI / 180;
+                //     if (!area.clockWise) {
+                //         startAngle = -startAngle;
+                //         endAngle = -endAngle;
+                //     }
+                //     return isInsideSector(
+                //         area.x, area.y, area.r0, area.r,
+                //         startAngle, endAngle,
+                //         !area.clockWise,
+                //         x, y
+                //     );
+                // // 多边形
+                // case 'path':
+                //     return area.pathArray && isInsidePath(
+                //         area.pathArray, Math.max(area.lineWidth, 5),
+                //         area.brushType, x, y
+                //     );
+                // case 'polygon':
+                // case 'star':
+                // case 'isogon':
+                //     return isInsidePolygon(area.pointList, x, y);
                 // 文本
                 case 'text':
                     var rect =  area.__rect || shape.getRect(area);
@@ -2975,29 +2473,29 @@ define(
          * @param  {number}  y
          * @return {boolean}
          */
-        function isInsideCubicStroke(
-            x0, y0, x1, y1, x2, y2, x3, y3,
-            lineWidth, x, y
-        ) {
-            if (lineWidth === 0) {
-                return false;
-            }
-            var _l = Math.max(lineWidth, 5);
-            // Quick reject
-            if (
-                (y > y0 + _l && y > y1 + _l && y > y2 + _l && y > y3 + _l)
-                || (y < y0 - _l && y < y1 - _l && y < y2 - _l && y < y3 - _l)
-                || (x > x0 + _l && x > x1 + _l && x > x2 + _l && x > x3 + _l)
-                || (x < x0 - _l && x < x1 - _l && x < x2 - _l && x < x3 - _l)
-            ) {
-                return false;
-            }
-            var d =  curve.cubicProjectPoint(
-                x0, y0, x1, y1, x2, y2, x3, y3,
-                x, y, null
-            );
-            return d <= _l / 2;
-        }
+        // function isInsideCubicStroke(
+        //     x0, y0, x1, y1, x2, y2, x3, y3,
+        //     lineWidth, x, y
+        // ) {
+        //     if (lineWidth === 0) {
+        //         return false;
+        //     }
+        //     var _l = Math.max(lineWidth, 5);
+        //     // Quick reject
+        //     if (
+        //         (y > y0 + _l && y > y1 + _l && y > y2 + _l && y > y3 + _l)
+        //         || (y < y0 - _l && y < y1 - _l && y < y2 - _l && y < y3 - _l)
+        //         || (x > x0 + _l && x > x1 + _l && x > x2 + _l && x > x3 + _l)
+        //         || (x < x0 - _l && x < x1 - _l && x < x2 - _l && x < x3 - _l)
+        //     ) {
+        //         return false;
+        //     }
+        //     var d =  curve.cubicProjectPoint(
+        //         x0, y0, x1, y1, x2, y2, x3, y3,
+        //         x, y, null
+        //     );
+        //     return d <= _l / 2;
+        // }
 
         /**
          * 二次贝塞尔曲线描边包含判断
@@ -3012,29 +2510,29 @@ define(
          * @param  {number}  y
          * @return {boolean}
          */
-        function isInsideQuadraticStroke(
-            x0, y0, x1, y1, x2, y2,
-            lineWidth, x, y
-        ) {
-            if (lineWidth === 0) {
-                return false;
-            }
-            var _l = Math.max(lineWidth, 5);
-            // Quick reject
-            if (
-                (y > y0 + _l && y > y1 + _l && y > y2 + _l)
-                || (y < y0 - _l && y < y1 - _l && y < y2 - _l)
-                || (x > x0 + _l && x > x1 + _l && x > x2 + _l)
-                || (x < x0 - _l && x < x1 - _l && x < x2 - _l)
-            ) {
-                return false;
-            }
-            var d =  curve.quadraticProjectPoint(
-                x0, y0, x1, y1, x2, y2,
-                x, y, null
-            );
-            return d <= _l / 2;
-        }
+        // function isInsideQuadraticStroke(
+        //     x0, y0, x1, y1, x2, y2,
+        //     lineWidth, x, y
+        // ) {
+        //     if (lineWidth === 0) {
+        //         return false;
+        //     }
+        //     var _l = Math.max(lineWidth, 5);
+        //     // Quick reject
+        //     if (
+        //         (y > y0 + _l && y > y1 + _l && y > y2 + _l)
+        //         || (y < y0 - _l && y < y1 - _l && y < y2 - _l)
+        //         || (x > x0 + _l && x > x1 + _l && x > x2 + _l)
+        //         || (x < x0 - _l && x < x1 - _l && x < x2 - _l)
+        //     ) {
+        //         return false;
+        //     }
+        //     var d =  curve.quadraticProjectPoint(
+        //         x0, y0, x1, y1, x2, y2,
+        //         x, y, null
+        //     );
+        //     return d <= _l / 2;
+        // }
 
         /**
          * 圆弧描边包含判断
@@ -3049,65 +2547,65 @@ define(
          * @param  {number}  y
          * @return {Boolean}
          */
-        function isInsideArcStroke(
-            cx, cy, r, startAngle, endAngle, anticlockwise,
-            lineWidth, x, y
-        ) {
-            if (lineWidth === 0) {
-                return false;
-            }
-            var _l = Math.max(lineWidth, 5);
+        // function isInsideArcStroke(
+        //     cx, cy, r, startAngle, endAngle, anticlockwise,
+        //     lineWidth, x, y
+        // ) {
+        //     if (lineWidth === 0) {
+        //         return false;
+        //     }
+        //     var _l = Math.max(lineWidth, 5);
 
-            x -= cx;
-            y -= cy;
-            var d = Math.sqrt(x * x + y * y);
-            if ((d - _l > r) || (d + _l < r)) {
-                return false;
-            }
-            if (Math.abs(startAngle - endAngle) >= PI2) {
-                // Is a circle
-                return true;
-            }
-            if (anticlockwise) {
-                var tmp = startAngle;
-                startAngle = normalizeRadian(endAngle);
-                endAngle = normalizeRadian(tmp);
-            } else {
-                startAngle = normalizeRadian(startAngle);
-                endAngle = normalizeRadian(endAngle);
-            }
-            if (startAngle > endAngle) {
-                endAngle += PI2;
-            }
+        //     x -= cx;
+        //     y -= cy;
+        //     var d = Math.sqrt(x * x + y * y);
+        //     if ((d - _l > r) || (d + _l < r)) {
+        //         return false;
+        //     }
+        //     if (Math.abs(startAngle - endAngle) >= PI2) {
+        //         // Is a circle
+        //         return true;
+        //     }
+        //     if (anticlockwise) {
+        //         var tmp = startAngle;
+        //         startAngle = normalizeRadian(endAngle);
+        //         endAngle = normalizeRadian(tmp);
+        //     } else {
+        //         startAngle = normalizeRadian(startAngle);
+        //         endAngle = normalizeRadian(endAngle);
+        //     }
+        //     if (startAngle > endAngle) {
+        //         endAngle += PI2;
+        //     }
             
-            var angle = Math.atan2(y, x);
-            if (angle < 0) {
-                angle += PI2;
-            }
-            return (angle >= startAngle && angle <= endAngle)
-                || (angle + PI2 >= startAngle && angle + PI2 <= endAngle);
-        }
+        //     var angle = Math.atan2(y, x);
+        //     if (angle < 0) {
+        //         angle += PI2;
+        //     }
+        //     return (angle >= startAngle && angle <= endAngle)
+        //         || (angle + PI2 >= startAngle && angle + PI2 <= endAngle);
+        // }
 
-        function isInsidePolyline(points, lineWidth, x, y) {
-            var lineWidth = Math.max(lineWidth, 10);
-            for (var i = 0, l = points.length - 1; i < l; i++) {
-                var x0 = points[i][0];
-                var y0 = points[i][1];
-                var x1 = points[i + 1][0];
-                var y1 = points[i + 1][1];
+        // function isInsidePolyline(points, lineWidth, x, y) {
+        //     var lineWidth = Math.max(lineWidth, 10);
+        //     for (var i = 0, l = points.length - 1; i < l; i++) {
+        //         var x0 = points[i][0];
+        //         var y0 = points[i][1];
+        //         var x1 = points[i + 1][0];
+        //         var y1 = points[i + 1][1];
 
-                if (isInsideLine(x0, y0, x1, y1, lineWidth, x, y)) {
-                    return true;
-                }
-            }
+        //         if (isInsideLine(x0, y0, x1, y1, lineWidth, x, y)) {
+        //             return true;
+        //         }
+        //     }
 
-            return false;
-        }
+        //     return false;
+        // }
 
-        function isInsideRing(cx, cy, r0, r, x, y) {
-            var d = (x - cx) * (x - cx) + (y - cy) * (y - cy);
-            return (d < r * r) && (d > r0 * r0);
-        }
+        // function isInsideRing(cx, cy, r0, r, x, y) {
+        //     var d = (x - cx) * (x - cx) + (y - cy) * (y - cy);
+        //     return (d < r * r) && (d > r0 * r0);
+        // }
 
         /**
          * 矩形包含判断
@@ -3120,378 +2618,378 @@ define(
         /**
          * 圆形包含判断
          */
-        function isInsideCircle(x0, y0, r, x, y) {
-            return (x - x0) * (x - x0) + (y - y0) * (y - y0)
-                   < r * r;
-        }
+        // function isInsideCircle(x0, y0, r, x, y) {
+        //     return (x - x0) * (x - x0) + (y - y0) * (y - y0)
+        //            < r * r;
+        // }
 
         /**
          * 扇形包含判断
          */
-        function isInsideSector(
-            cx, cy, r0, r, startAngle, endAngle, anticlockwise, x, y
-        ) {
-            return isInsideArcStroke(
-                cx, cy, (r0 + r) / 2, startAngle, endAngle, anticlockwise,
-                r - r0, x, y
-            );
-        }
+        // function isInsideSector(
+        //     cx, cy, r0, r, startAngle, endAngle, anticlockwise, x, y
+        // ) {
+        //     return isInsideArcStroke(
+        //         cx, cy, (r0 + r) / 2, startAngle, endAngle, anticlockwise,
+        //         r - r0, x, y
+        //     );
+        // }
 
         /**
          * 多边形包含判断
          * 与 canvas 一样采用 non-zero winding rule
          */
-        function isInsidePolygon(points, x, y) {
-            var N = points.length;
-            var w = 0;
+        // function isInsidePolygon(points, x, y) {
+        //     var N = points.length;
+        //     var w = 0;
 
-            for (var i = 0, j = N - 1; i < N; i++) {
-                var x0 = points[j][0];
-                var y0 = points[j][1];
-                var x1 = points[i][0];
-                var y1 = points[i][1];
-                w += windingLine(x0, y0, x1, y1, x, y);
-                j = i;
-            }
-            return w !== 0;
-        }
+        //     for (var i = 0, j = N - 1; i < N; i++) {
+        //         var x0 = points[j][0];
+        //         var y0 = points[j][1];
+        //         var x1 = points[i][0];
+        //         var y1 = points[i][1];
+        //         w += windingLine(x0, y0, x1, y1, x, y);
+        //         j = i;
+        //     }
+        //     return w !== 0;
+        // }
 
-        function windingLine(x0, y0, x1, y1, x, y) {
-            if ((y > y0 && y > y1) || (y < y0 && y < y1)) {
-                return 0;
-            }
-            if (y1 == y0) {
-                return 0;
-            }
-            var dir = y1 < y0 ? 1 : -1;
-            var t = (y - y0) / (y1 - y0);
-            var x_ = t * (x1 - x0) + x0;
+        // function windingLine(x0, y0, x1, y1, x, y) {
+        //     if ((y > y0 && y > y1) || (y < y0 && y < y1)) {
+        //         return 0;
+        //     }
+        //     if (y1 == y0) {
+        //         return 0;
+        //     }
+        //     var dir = y1 < y0 ? 1 : -1;
+        //     var t = (y - y0) / (y1 - y0);
+        //     var x_ = t * (x1 - x0) + x0;
 
-            return x_ > x ? dir : 0;
-        }
+        //     return x_ > x ? dir : 0;
+        // }
 
         // 临时数组
-        var roots = [-1, -1, -1];
-        var extrema = [-1, -1];
+        // var roots = [-1, -1, -1];
+        // var extrema = [-1, -1];
 
-        function swapExtrema() {
-            var tmp = extrema[0];
-            extrema[0] = extrema[1];
-            extrema[1] = tmp;
-        }
-        function windingCubic(x0, y0, x1, y1, x2, y2, x3, y3, x, y) {
-            // Quick reject
-            if (
-                (y > y0 && y > y1 && y > y2 && y > y3)
-                || (y < y0 && y < y1 && y < y2 && y < y3)
-            ) {
-                return 0;
-            }
-            var nRoots = curve.cubicRootAt(y0, y1, y2, y3, y, roots);
-            if (nRoots === 0) {
-                return 0;
-            }
-            else {
-                var w = 0;
-                var nExtrema = -1;
-                var y0_, y1_;
-                for (var i = 0; i < nRoots; i++) {
-                    var t = roots[i];
-                    var x_ = curve.cubicAt(x0, x1, x2, x3, t);
-                    if (x_ < x) { // Quick reject
-                        continue;
-                    }
-                    if (nExtrema < 0) {
-                        nExtrema = curve.cubicExtrema(y0, y1, y2, y3, extrema);
-                        if (extrema[1] < extrema[0] && nExtrema > 1) {
-                            swapExtrema();
-                        }
-                        y0_ = curve.cubicAt(y0, y1, y2, y3, extrema[0]);
-                        if (nExtrema > 1) {
-                            y1_ = curve.cubicAt(y0, y1, y2, y3, extrema[1]);
-                        }
-                    }
-                    if (nExtrema == 2) {
-                        // 分成三段单调函数
-                        if (t < extrema[0]) {
-                            w += y0_ < y0 ? 1 : -1;
-                        } 
-                        else if (t < extrema[1]) {
-                            w += y1_ < y0_ ? 1 : -1;
-                        } 
-                        else {
-                            w += y3 < y1_ ? 1 : -1;
-                        }
-                    } 
-                    else {
-                        // 分成两段单调函数
-                        if (t < extrema[0]) {
-                            w += y0_ < y0 ? 1 : -1;
-                        } 
-                        else {
-                            w += y3 < y0_ ? 1 : -1;
-                        }
-                    }
-                }
-                return w;
-            }
-        }
+        // function swapExtrema() {
+        //     var tmp = extrema[0];
+        //     extrema[0] = extrema[1];
+        //     extrema[1] = tmp;
+        // }
+        // function windingCubic(x0, y0, x1, y1, x2, y2, x3, y3, x, y) {
+        //     // Quick reject
+        //     if (
+        //         (y > y0 && y > y1 && y > y2 && y > y3)
+        //         || (y < y0 && y < y1 && y < y2 && y < y3)
+        //     ) {
+        //         return 0;
+        //     }
+        //     var nRoots = curve.cubicRootAt(y0, y1, y2, y3, y, roots);
+        //     if (nRoots === 0) {
+        //         return 0;
+        //     }
+        //     else {
+        //         var w = 0;
+        //         var nExtrema = -1;
+        //         var y0_, y1_;
+        //         for (var i = 0; i < nRoots; i++) {
+        //             var t = roots[i];
+        //             var x_ = curve.cubicAt(x0, x1, x2, x3, t);
+        //             if (x_ < x) { // Quick reject
+        //                 continue;
+        //             }
+        //             if (nExtrema < 0) {
+        //                 nExtrema = curve.cubicExtrema(y0, y1, y2, y3, extrema);
+        //                 if (extrema[1] < extrema[0] && nExtrema > 1) {
+        //                     swapExtrema();
+        //                 }
+        //                 y0_ = curve.cubicAt(y0, y1, y2, y3, extrema[0]);
+        //                 if (nExtrema > 1) {
+        //                     y1_ = curve.cubicAt(y0, y1, y2, y3, extrema[1]);
+        //                 }
+        //             }
+        //             if (nExtrema == 2) {
+        //                 // 分成三段单调函数
+        //                 if (t < extrema[0]) {
+        //                     w += y0_ < y0 ? 1 : -1;
+        //                 } 
+        //                 else if (t < extrema[1]) {
+        //                     w += y1_ < y0_ ? 1 : -1;
+        //                 } 
+        //                 else {
+        //                     w += y3 < y1_ ? 1 : -1;
+        //                 }
+        //             } 
+        //             else {
+        //                 // 分成两段单调函数
+        //                 if (t < extrema[0]) {
+        //                     w += y0_ < y0 ? 1 : -1;
+        //                 } 
+        //                 else {
+        //                     w += y3 < y0_ ? 1 : -1;
+        //                 }
+        //             }
+        //         }
+        //         return w;
+        //     }
+        // }
 
-        function windingQuadratic(x0, y0, x1, y1, x2, y2, x, y) {
-            // Quick reject
-            if (
-                (y > y0 && y > y1 && y > y2)
-                || (y < y0 && y < y1 && y < y2)
-            ) {
-                return 0;
-            }
-            var nRoots = curve.quadraticRootAt(y0, y1, y2, y, roots);
-            if (nRoots === 0) {
-                return 0;
-            } 
-            else {
-                var t = curve.quadraticExtremum(y0, y1, y2);
-                if (t >=0 && t <= 1) {
-                    var w = 0;
-                    var y_ = curve.quadraticAt(y0, y1, y2, t);
-                    for (var i = 0; i < nRoots; i++) {
-                        var x_ = curve.quadraticAt(x0, x1, x2, roots[i]);
-                        if (x_ > x) {
-                            continue;
-                        }
-                        if (roots[i] < t) {
-                            w += y_ < y0 ? 1 : -1;
-                        } 
-                        else {
-                            w += y2 < y_ ? 1 : -1;
-                        }
-                    }
-                    return w;
-                } 
-                else {
-                    var x_ = curve.quadraticAt(x0, x1, x2, roots[0]);
-                    if (x_ > x) {
-                        return 0;
-                    }
-                    return y2 < y0 ? 1 : -1;
-                }
-            }
-        }
+        // function windingQuadratic(x0, y0, x1, y1, x2, y2, x, y) {
+        //     // Quick reject
+        //     if (
+        //         (y > y0 && y > y1 && y > y2)
+        //         || (y < y0 && y < y1 && y < y2)
+        //     ) {
+        //         return 0;
+        //     }
+        //     var nRoots = curve.quadraticRootAt(y0, y1, y2, y, roots);
+        //     if (nRoots === 0) {
+        //         return 0;
+        //     } 
+        //     else {
+        //         var t = curve.quadraticExtremum(y0, y1, y2);
+        //         if (t >=0 && t <= 1) {
+        //             var w = 0;
+        //             var y_ = curve.quadraticAt(y0, y1, y2, t);
+        //             for (var i = 0; i < nRoots; i++) {
+        //                 var x_ = curve.quadraticAt(x0, x1, x2, roots[i]);
+        //                 if (x_ > x) {
+        //                     continue;
+        //                 }
+        //                 if (roots[i] < t) {
+        //                     w += y_ < y0 ? 1 : -1;
+        //                 } 
+        //                 else {
+        //                     w += y2 < y_ ? 1 : -1;
+        //                 }
+        //             }
+        //             return w;
+        //         } 
+        //         else {
+        //             var x_ = curve.quadraticAt(x0, x1, x2, roots[0]);
+        //             if (x_ > x) {
+        //                 return 0;
+        //             }
+        //             return y2 < y0 ? 1 : -1;
+        //         }
+        //     }
+        // }
         
         // TODO
         // Arc 旋转
-        function windingArc(
-            cx, cy, r, startAngle, endAngle, anticlockwise, x, y
-        ) {
-            y -= cy;
-            if (y > r || y < -r) {
-                return 0;
-            }
-            var tmp = Math.sqrt(r * r - y * y);
-            roots[0] = -tmp;
-            roots[1] = tmp;
+        // function windingArc(
+        //     cx, cy, r, startAngle, endAngle, anticlockwise, x, y
+        // ) {
+        //     y -= cy;
+        //     if (y > r || y < -r) {
+        //         return 0;
+        //     }
+        //     var tmp = Math.sqrt(r * r - y * y);
+        //     roots[0] = -tmp;
+        //     roots[1] = tmp;
 
-            if (Math.abs(startAngle - endAngle) >= PI2) {
-                // Is a circle
-                startAngle = 0;
-                endAngle = PI2;
-                var dir = anticlockwise ? 1 : -1;
-                if (x >= roots[0] + cx && x <= roots[1] + cx) {
-                    return dir;
-                } else {
-                    return 0;
-                }
-            }
+        //     if (Math.abs(startAngle - endAngle) >= PI2) {
+        //         // Is a circle
+        //         startAngle = 0;
+        //         endAngle = PI2;
+        //         var dir = anticlockwise ? 1 : -1;
+        //         if (x >= roots[0] + cx && x <= roots[1] + cx) {
+        //             return dir;
+        //         } else {
+        //             return 0;
+        //         }
+        //     }
 
-            if (anticlockwise) {
-                var tmp = startAngle;
-                startAngle = normalizeRadian(endAngle);
-                endAngle = normalizeRadian(tmp);   
-            } else {
-                startAngle = normalizeRadian(startAngle);
-                endAngle = normalizeRadian(endAngle);   
-            }
-            if (startAngle > endAngle) {
-                endAngle += PI2;
-            }
+        //     if (anticlockwise) {
+        //         var tmp = startAngle;
+        //         startAngle = normalizeRadian(endAngle);
+        //         endAngle = normalizeRadian(tmp);   
+        //     } else {
+        //         startAngle = normalizeRadian(startAngle);
+        //         endAngle = normalizeRadian(endAngle);   
+        //     }
+        //     if (startAngle > endAngle) {
+        //         endAngle += PI2;
+        //     }
 
-            var w = 0;
-            for (var i = 0; i < 2; i++) {
-                var x_ = roots[i];
-                if (x_ + cx > x) {
-                    var angle = Math.atan2(y, x_);
-                    var dir = anticlockwise ? 1 : -1;
-                    if (angle < 0) {
-                        angle = PI2 + angle;
-                    }
-                    if (
-                        (angle >= startAngle && angle <= endAngle)
-                        || (angle + PI2 >= startAngle && angle + PI2 <= endAngle)
-                    ) {
-                        if (angle > Math.PI / 2 && angle < Math.PI * 1.5) {
-                            dir = -dir;
-                        }
-                        w += dir;
-                    }
-                }
-            }
-            return w;
-        }
+        //     var w = 0;
+        //     for (var i = 0; i < 2; i++) {
+        //         var x_ = roots[i];
+        //         if (x_ + cx > x) {
+        //             var angle = Math.atan2(y, x_);
+        //             var dir = anticlockwise ? 1 : -1;
+        //             if (angle < 0) {
+        //                 angle = PI2 + angle;
+        //             }
+        //             if (
+        //                 (angle >= startAngle && angle <= endAngle)
+        //                 || (angle + PI2 >= startAngle && angle + PI2 <= endAngle)
+        //             ) {
+        //                 if (angle > Math.PI / 2 && angle < Math.PI * 1.5) {
+        //                     dir = -dir;
+        //                 }
+        //                 w += dir;
+        //             }
+        //         }
+        //     }
+        //     return w;
+        // }
 
         /**
          * 路径包含判断
          * 与 canvas 一样采用 non-zero winding rule
          */
-        function isInsidePath(pathArray, lineWidth, brushType, x, y) {
-            var w = 0;
-            var xi = 0;
-            var yi = 0;
-            var x0 = 0;
-            var y0 = 0;
-            var beginSubpath = true;
-            var firstCmd = true;
+        // function isInsidePath(pathArray, lineWidth, brushType, x, y) {
+        //     var w = 0;
+        //     var xi = 0;
+        //     var yi = 0;
+        //     var x0 = 0;
+        //     var y0 = 0;
+        //     var beginSubpath = true;
+        //     var firstCmd = true;
 
-            brushType = brushType || 'fill';
+        //     brushType = brushType || 'fill';
 
-            var hasStroke = brushType === 'stroke' || brushType === 'both';
-            var hasFill = brushType === 'fill' || brushType === 'both';
+        //     var hasStroke = brushType === 'stroke' || brushType === 'both';
+        //     var hasFill = brushType === 'fill' || brushType === 'both';
 
-            // var roots = [-1, -1, -1];
-            for (var i = 0; i < pathArray.length; i++) {
-                var seg = pathArray[i];
-                var p = seg.points;
-                // Begin a new subpath
-                if (beginSubpath || seg.command === 'M') {
-                    if (i > 0) {
-                        // Close previous subpath
-                        if (hasFill) {
-                            w += windingLine(xi, yi, x0, y0, x, y);
-                        }
-                        if (w !== 0) {
-                            return true;
-                        }
-                    }
-                    x0 = p[p.length - 2];
-                    y0 = p[p.length - 1];
-                    beginSubpath = false;
-                    if (firstCmd && seg.command !== 'A') {
-                        // 如果第一个命令不是M, 是lineTo, bezierCurveTo
-                        // 等绘制命令的话，是会从该绘制的起点开始算的
-                        // Arc 会在之后做单独处理所以这里忽略
-                        firstCmd = false;
-                        xi = x0;
-                        yi = y0;
-                    }
-                }
-                switch (seg.command) {
-                    case 'M':
-                        xi = p[0];
-                        yi = p[1];
-                        break;
-                    case 'L':
-                        if (hasStroke) {
-                            if (isInsideLine(
-                                xi, yi, p[0], p[1], lineWidth, x, y
-                            )) {
-                                return true;
-                            }
-                        }
-                        if (hasFill) {
-                            w += windingLine(xi, yi, p[0], p[1], x, y);
-                        }
-                        xi = p[0];
-                        yi = p[1];
-                        break;
-                    case 'C':
-                        if (hasStroke) {
-                            if (isInsideCubicStroke(
-                                xi, yi, p[0], p[1], p[2], p[3], p[4], p[5],
-                                lineWidth, x, y
-                            )) {
-                                return true;
-                            }
-                        }
-                        if (hasFill) {
-                            w += windingCubic(
-                                xi, yi, p[0], p[1], p[2], p[3], p[4], p[5], x, y
-                            );
-                        }
-                        xi = p[4];
-                        yi = p[5];
-                        break;
-                    case 'Q':
-                        if (hasStroke) {
-                            if (isInsideQuadraticStroke(
-                                xi, yi, p[0], p[1], p[2], p[3],
-                                lineWidth, x, y
-                            )) {
-                                return true;
-                            }
-                        }
-                        if (hasFill) {
-                            w += windingQuadratic(
-                                xi, yi, p[0], p[1], p[2], p[3], x, y
-                            );
-                        }
-                        xi = p[2];
-                        yi = p[3];
-                        break;
-                    case 'A':
-                        // TODO Arc 旋转
-                        // TODO Arc 判断的开销比较大
-                        var cx = p[0];
-                        var cy = p[1];
-                        var rx = p[2];
-                        var ry = p[3];
-                        var theta = p[4];
-                        var dTheta = p[5];
-                        var x1 = Math.cos(theta) * rx + cx;
-                        var y1 = Math.sin(theta) * ry + cy;
-                        // 不是直接使用 arc 命令
-                        if (!firstCmd) {
-                            w += windingLine(xi, yi, x1, y1);
-                        } else {
-                            firstCmd = false;
-                            // 第一个命令起点还未定义
-                            x0 = x1;
-                            y0 = y1;
-                        }
-                        // zr 使用scale来模拟椭圆, 这里也对x做一定的缩放
-                        var _x = (x - cx) * ry / rx + cx;
-                        if (hasStroke) {
-                            if (isInsideArcStroke(
-                                cx, cy, ry, theta, theta + dTheta, 1 - p[7],
-                                lineWidth, _x, y
-                            )) {
-                                return true;
-                            }
-                        }
-                        if (hasFill) {
-                            w += windingArc(
-                                cx, cy, ry, theta, theta + dTheta, 1 - p[7],
-                                _x, y
-                            );
-                        }
-                        xi = Math.cos(theta + dTheta) * rx + cx;
-                        yi = Math.sin(theta + dTheta) * ry + cy;
-                        break;
-                    case 'z':
-                        if (hasStroke) {
-                            if (isInsideLine(
-                                xi, yi, x0, y0, lineWidth, x, y
-                            )) {
-                                return true;
-                            }
-                        }
-                        beginSubpath = true;
-                        break;
-                }
-            }
-            if (hasFill) {
-                w += windingLine(xi, yi, x0, y0, x, y);
-            }
-            return w !== 0;
-        }
+        //     // var roots = [-1, -1, -1];
+        //     for (var i = 0; i < pathArray.length; i++) {
+        //         var seg = pathArray[i];
+        //         var p = seg.points;
+        //         // Begin a new subpath
+        //         if (beginSubpath || seg.command === 'M') {
+        //             if (i > 0) {
+        //                 // Close previous subpath
+        //                 if (hasFill) {
+        //                     w += windingLine(xi, yi, x0, y0, x, y);
+        //                 }
+        //                 if (w !== 0) {
+        //                     return true;
+        //                 }
+        //             }
+        //             x0 = p[p.length - 2];
+        //             y0 = p[p.length - 1];
+        //             beginSubpath = false;
+        //             if (firstCmd && seg.command !== 'A') {
+        //                 // 如果第一个命令不是M, 是lineTo, bezierCurveTo
+        //                 // 等绘制命令的话，是会从该绘制的起点开始算的
+        //                 // Arc 会在之后做单独处理所以这里忽略
+        //                 firstCmd = false;
+        //                 xi = x0;
+        //                 yi = y0;
+        //             }
+        //         }
+        //         switch (seg.command) {
+        //             case 'M':
+        //                 xi = p[0];
+        //                 yi = p[1];
+        //                 break;
+        //             case 'L':
+        //                 if (hasStroke) {
+        //                     if (isInsideLine(
+        //                         xi, yi, p[0], p[1], lineWidth, x, y
+        //                     )) {
+        //                         return true;
+        //                     }
+        //                 }
+        //                 if (hasFill) {
+        //                     w += windingLine(xi, yi, p[0], p[1], x, y);
+        //                 }
+        //                 xi = p[0];
+        //                 yi = p[1];
+        //                 break;
+        //             case 'C':
+        //                 if (hasStroke) {
+        //                     if (isInsideCubicStroke(
+        //                         xi, yi, p[0], p[1], p[2], p[3], p[4], p[5],
+        //                         lineWidth, x, y
+        //                     )) {
+        //                         return true;
+        //                     }
+        //                 }
+        //                 if (hasFill) {
+        //                     w += windingCubic(
+        //                         xi, yi, p[0], p[1], p[2], p[3], p[4], p[5], x, y
+        //                     );
+        //                 }
+        //                 xi = p[4];
+        //                 yi = p[5];
+        //                 break;
+        //             case 'Q':
+        //                 if (hasStroke) {
+        //                     if (isInsideQuadraticStroke(
+        //                         xi, yi, p[0], p[1], p[2], p[3],
+        //                         lineWidth, x, y
+        //                     )) {
+        //                         return true;
+        //                     }
+        //                 }
+        //                 if (hasFill) {
+        //                     w += windingQuadratic(
+        //                         xi, yi, p[0], p[1], p[2], p[3], x, y
+        //                     );
+        //                 }
+        //                 xi = p[2];
+        //                 yi = p[3];
+        //                 break;
+        //             case 'A':
+        //                 // TODO Arc 旋转
+        //                 // TODO Arc 判断的开销比较大
+        //                 var cx = p[0];
+        //                 var cy = p[1];
+        //                 var rx = p[2];
+        //                 var ry = p[3];
+        //                 var theta = p[4];
+        //                 var dTheta = p[5];
+        //                 var x1 = Math.cos(theta) * rx + cx;
+        //                 var y1 = Math.sin(theta) * ry + cy;
+        //                 // 不是直接使用 arc 命令
+        //                 if (!firstCmd) {
+        //                     w += windingLine(xi, yi, x1, y1);
+        //                 } else {
+        //                     firstCmd = false;
+        //                     // 第一个命令起点还未定义
+        //                     x0 = x1;
+        //                     y0 = y1;
+        //                 }
+        //                 // zr 使用scale来模拟椭圆, 这里也对x做一定的缩放
+        //                 var _x = (x - cx) * ry / rx + cx;
+        //                 if (hasStroke) {
+        //                     if (isInsideArcStroke(
+        //                         cx, cy, ry, theta, theta + dTheta, 1 - p[7],
+        //                         lineWidth, _x, y
+        //                     )) {
+        //                         return true;
+        //                     }
+        //                 }
+        //                 if (hasFill) {
+        //                     w += windingArc(
+        //                         cx, cy, ry, theta, theta + dTheta, 1 - p[7],
+        //                         _x, y
+        //                     );
+        //                 }
+        //                 xi = Math.cos(theta + dTheta) * rx + cx;
+        //                 yi = Math.sin(theta + dTheta) * ry + cy;
+        //                 break;
+        //             case 'z':
+        //                 if (hasStroke) {
+        //                     if (isInsideLine(
+        //                         xi, yi, x0, y0, lineWidth, x, y
+        //                     )) {
+        //                         return true;
+        //                     }
+        //                 }
+        //                 beginSubpath = true;
+        //                 break;
+        //         }
+        //     }
+        //     if (hasFill) {
+        //         w += windingLine(xi, yi, x0, y0, x, y);
+        //     }
+        //     return w !== 0;
+        // }
 
         /**
          * 测算多行文本宽度
@@ -3569,16 +3067,16 @@ define(
             getTextWidth : getTextWidth,
             getTextHeight : getTextHeight,
 
-            isInsidePath: isInsidePath,
-            isInsidePolygon: isInsidePolygon,
-            isInsideSector: isInsideSector,
-            isInsideCircle: isInsideCircle,
-            isInsideLine: isInsideLine,
-            isInsideRect: isInsideRect,
-            isInsidePolyline: isInsidePolyline,
+            // isInsidePath: isInsidePath,
+            // isInsidePolygon: isInsidePolygon,
+            // isInsideSector: isInsideSector,
+            // isInsideCircle: isInsideCircle,
+            // isInsideLine: isInsideLine,
+            isInsideRect: isInsideRect
+            // isInsidePolyline: isInsidePolyline,
 
-            isInsideCubicStroke: isInsideCubicStroke,
-            isInsideQuadraticStroke: isInsideQuadraticStroke
+            // isInsideCubicStroke: isInsideCubicStroke,
+            // isInsideQuadraticStroke: isInsideQuadraticStroke
         };
     }
 );
@@ -6250,6 +5748,7 @@ define('zrender/Layer',['require','./mixin/Transformable','./tool/util','./confi
         this.dom.style['-webkit-user-select'] = 'none';
         this.dom.style['user-select'] = 'none';
         this.dom.style['-webkit-touch-callout'] = 'none';
+        this.dom.style['-webkit-tap-highlight-color'] = 'rgba(0,0,0,0)';
 
         vmlCanvasManager && vmlCanvasManager.initElement(this.dom);
 
@@ -10114,6 +9613,518 @@ define(
 );
 
 /**
+ * 曲线辅助模块
+ * @module zrender/tool/curve
+ * @author pissang(https://www.github.com/pissang)
+ */
+define('zrender/tool/curve',['require','./vector'],function(require) {
+
+    var vector = require('./vector');
+
+    
+
+    var EPSILON = 1e-4;
+
+    var THREE_SQRT = Math.sqrt(3);
+    var ONE_THIRD = 1 / 3;
+
+    // 临时变量
+    var _v0 = vector.create();
+    var _v1 = vector.create();
+    var _v2 = vector.create();
+    // var _v3 = vector.create();
+
+    function isAroundZero(val) {
+        return val > -EPSILON && val < EPSILON;
+    }
+    function isNotAroundZero(val) {
+        return val > EPSILON || val < -EPSILON;
+    }
+    /*
+    function evalCubicCoeff(a, b, c, d, t) {
+        return ((a * t + b) * t + c) * t + d;
+    }
+    */
+
+    /** 
+     * 计算三次贝塞尔值
+     * @memberOf module:zrender/tool/curve
+     * @param  {number} p0
+     * @param  {number} p1
+     * @param  {number} p2
+     * @param  {number} p3
+     * @param  {number} t
+     * @return {number}
+     */
+    function cubicAt(p0, p1, p2, p3, t) {
+        var onet = 1 - t;
+        return onet * onet * (onet * p0 + 3 * t * p1)
+             + t * t * (t * p3 + 3 * onet * p2);
+    }
+
+    /** 
+     * 计算三次贝塞尔导数值
+     * @memberOf module:zrender/tool/curve
+     * @param  {number} p0
+     * @param  {number} p1
+     * @param  {number} p2
+     * @param  {number} p3
+     * @param  {number} t
+     * @return {number}
+     */
+    function cubicDerivativeAt(p0, p1, p2, p3, t) {
+        var onet = 1 - t;
+        return 3 * (
+            ((p1 - p0) * onet + 2 * (p2 - p1) * t) * onet
+            + (p3 - p2) * t * t
+        );
+    }
+
+    /**
+     * 计算三次贝塞尔方程根，使用盛金公式
+     * @memberOf module:zrender/tool/curve
+     * @param  {number} p0
+     * @param  {number} p1
+     * @param  {number} p2
+     * @param  {number} p3
+     * @param  {number} val
+     * @param  {Array.<number>} roots
+     * @return {number} 有效根数目
+     */
+    function cubicRootAt(p0, p1, p2, p3, val, roots) {
+        // Evaluate roots of cubic functions
+        var a = p3 + 3 * (p1 - p2) - p0;
+        var b = 3 * (p2 - p1 * 2 + p0);
+        var c = 3 * (p1  - p0);
+        var d = p0 - val;
+
+        var A = b * b - 3 * a * c;
+        var B = b * c - 9 * a * d;
+        var C = c * c - 3 * b * d;
+
+        var n = 0;
+
+        if (isAroundZero(A) && isAroundZero(B)) {
+            if (isAroundZero(b)) {
+                roots[0] = 0;
+            }
+            else {
+                var t1 = -c / b;  //t1, t2, t3, b is not zero
+                if (t1 >=0 && t1 <= 1) {
+                    roots[n++] = t1;
+                }
+            }
+        }
+        else {
+            var disc = B * B - 4 * A * C;
+
+            if (isAroundZero(disc)) {
+                var K = B / A;
+                var t1 = -b / a + K;  // t1, a is not zero
+                var t2 = -K / 2;  // t2, t3
+                if (t1 >= 0 && t1 <= 1) {
+                    roots[n++] = t1;
+                }
+                if (t2 >= 0 && t2 <= 1) {
+                    roots[n++] = t2;
+                }
+            }
+            else if (disc > 0) {
+                var discSqrt = Math.sqrt(disc);
+                var Y1 = A * b + 1.5 * a * (-B + discSqrt);
+                var Y2 = A * b + 1.5 * a * (-B - discSqrt);
+                if (Y1 < 0) {
+                    Y1 = -Math.pow(-Y1, ONE_THIRD);
+                }
+                else {
+                    Y1 = Math.pow(Y1, ONE_THIRD);
+                }
+                if (Y2 < 0) {
+                    Y2 = -Math.pow(-Y2, ONE_THIRD);
+                }
+                else {
+                    Y2 = Math.pow(Y2, ONE_THIRD);
+                }
+                var t1 = (-b - (Y1 + Y2)) / (3 * a);
+                if (t1 >= 0 && t1 <= 1) {
+                    roots[n++] = t1;
+                }
+            }
+            else {
+                var T = (2 * A * b - 3 * a * B) / (2 * Math.sqrt(A * A * A));
+                var theta = Math.acos(T) / 3;
+                var ASqrt = Math.sqrt(A);
+                var tmp = Math.cos(theta);
+                
+                var t1 = (-b - 2 * ASqrt * tmp) / (3 * a);
+                var t2 = (-b + ASqrt * (tmp + THREE_SQRT * Math.sin(theta))) / (3 * a);
+                var t3 = (-b + ASqrt * (tmp - THREE_SQRT * Math.sin(theta))) / (3 * a);
+                if (t1 >= 0 && t1 <= 1) {
+                    roots[n++] = t1;
+                }
+                if (t2 >= 0 && t2 <= 1) {
+                    roots[n++] = t2;
+                }
+                if (t3 >= 0 && t3 <= 1) {
+                    roots[n++] = t3;
+                }
+            }
+        }
+        return n;
+    }
+
+    /**
+     * 计算三次贝塞尔方程极限值的位置
+     * @memberOf module:zrender/tool/curve
+     * @param  {number} p0
+     * @param  {number} p1
+     * @param  {number} p2
+     * @param  {number} p3
+     * @param  {Array.<number>} extrema
+     * @return {number} 有效数目
+     */
+    function cubicExtrema(p0, p1, p2, p3, extrema) {
+        var b = 6 * p2 - 12 * p1 + 6 * p0;
+        var a = 9 * p1 + 3 * p3 - 3 * p0 - 9 * p2;
+        var c = 3 * p1 - 3 * p0;
+
+        var n = 0;
+        if (isAroundZero(a)) {
+            if (isNotAroundZero(b)) {
+                var t1 = -c / b;
+                if (t1 >= 0 && t1 <=1) {
+                    extrema[n++] = t1;
+                }
+            }
+        }
+        else {
+            var disc = b * b - 4 * a * c;
+            if (isAroundZero(disc)) {
+                extrema[0] = -b / (2 * a);
+            }
+            else if (disc > 0) {
+                var discSqrt = Math.sqrt(disc);
+                var t1 = (-b + discSqrt) / (2 * a);
+                var t2 = (-b - discSqrt) / (2 * a);
+                if (t1 >= 0 && t1 <= 1) {
+                    extrema[n++] = t1;
+                }
+                if (t2 >= 0 && t2 <= 1) {
+                    extrema[n++] = t2;
+                }
+            }
+        }
+        return n;
+    }
+
+    /**
+     * 细分三次贝塞尔曲线
+     * @memberOf module:zrender/tool/curve
+     * @param  {number} p0
+     * @param  {number} p1
+     * @param  {number} p2
+     * @param  {number} p3
+     * @param  {number} t
+     * @param  {Array.<number>} out
+     */
+    function cubicSubdivide(p0, p1, p2, p3, t, out) {
+        var p01 = (p1 - p0) * t + p0;
+        var p12 = (p2 - p1) * t + p1;
+        var p23 = (p3 - p2) * t + p2;
+
+        var p012 = (p12 - p01) * t + p01;
+        var p123 = (p23 - p12) * t + p12;
+
+        var p0123 = (p123 - p012) * t + p012;
+        // Seg0
+        out[0] = p0;
+        out[1] = p01;
+        out[2] = p012;
+        out[3] = p0123;
+        // Seg1
+        out[4] = p0123;
+        out[5] = p123;
+        out[6] = p23;
+        out[7] = p3;
+    }
+
+    /**
+     * 投射点到三次贝塞尔曲线上，返回投射距离。
+     * 投射点有可能会有一个或者多个，这里只返回其中距离最短的一个。
+     * @param {number} x0
+     * @param {number} y0
+     * @param {number} x1
+     * @param {number} y1
+     * @param {number} x2
+     * @param {number} y2
+     * @param {number} x3
+     * @param {number} y3
+     * @param {number} x
+     * @param {number} y
+     * @param {Array.<number>} [out] 投射点
+     * @return {number}
+     */
+    function cubicProjectPoint(
+        x0, y0, x1, y1, x2, y2, x3, y3,
+        x, y, out
+    ) {
+        // http://pomax.github.io/bezierinfo/#projections
+        var t;
+        var interval = 0.005;
+        var d = Infinity;
+
+        _v0[0] = x;
+        _v0[1] = y;
+
+        // 先粗略估计一下可能的最小距离的 t 值
+        // PENDING
+        for (var _t = 0; _t < 1; _t += 0.05) {
+            _v1[0] = cubicAt(x0, x1, x2, x3, _t);
+            _v1[1] = cubicAt(y0, y1, y2, y3, _t);
+            var d1 = vector.distSquare(_v0, _v1);
+            if (d1 < d) {
+                t = _t;
+                d = d1;
+            }
+        }
+        d = Infinity;
+
+        // At most 32 iteration
+        for (var i = 0; i < 32; i++) {
+            if (interval < EPSILON) {
+                break;
+            }
+            var prev = t - interval;
+            var next = t + interval;
+            // t - interval
+            _v1[0] = cubicAt(x0, x1, x2, x3, prev);
+            _v1[1] = cubicAt(y0, y1, y2, y3, prev);
+
+            var d1 = vector.distSquare(_v1, _v0);
+
+            if (prev >= 0 && d1 < d) {
+                t = prev;
+                d = d1;
+            }
+            else {
+                // t + interval
+                _v2[0] = cubicAt(x0, x1, x2, x3, next);
+                _v2[1] = cubicAt(y0, y1, y2, y3, next);
+                var d2 = vector.distSquare(_v2, _v0);
+
+                if (next <= 1 && d2 < d) {
+                    t = next;
+                    d = d2;
+                }
+                else {
+                    interval *= 0.5;
+                }
+            }
+        }
+        // t
+        if (out) {
+            out[0] = cubicAt(x0, x1, x2, x3, t);
+            out[1] = cubicAt(y0, y1, y2, y3, t);   
+        }
+        // console.log(interval, i);
+        return Math.sqrt(d);
+    }
+
+    /**
+     * 计算二次方贝塞尔值
+     * @param  {number} p0
+     * @param  {number} p1
+     * @param  {number} p2
+     * @param  {number} t
+     * @return {number}
+     */
+    function quadraticAt(p0, p1, p2, t) {
+        var onet = 1 - t;
+        return onet * (onet * p0 + 2 * t * p1) + t * t * p2;
+    }
+
+    /**
+     * 计算二次方贝塞尔导数值
+     * @param  {number} p0
+     * @param  {number} p1
+     * @param  {number} p2
+     * @param  {number} t
+     * @return {number}
+     */
+    function quadraticDerivativeAt(p0, p1, p2, t) {
+        return 2 * ((1 - t) * (p1 - p0) + t * (p2 - p1));
+    }
+
+    /**
+     * 计算二次方贝塞尔方程根
+     * @param  {number} p0
+     * @param  {number} p1
+     * @param  {number} p2
+     * @param  {number} t
+     * @param  {Array.<number>} roots
+     * @return {number} 有效根数目
+     */
+    function quadraticRootAt(p0, p1, p2, val, roots) {
+        var a = p0 - 2 * p1 + p2;
+        var b = 2 * (p1 - p0);
+        var c = p0 - val;
+
+        var n = 0;
+        if (isAroundZero(a)) {
+            if (isNotAroundZero(b)) {
+                var t1 = -c / b;
+                if (t1 >= 0 && t1 <= 1) {
+                    roots[n++] = t1;
+                }
+            }
+        }
+        else {
+            var disc = b * b - 4 * a * c;
+            if (isAroundZero(disc)) {
+                var t1 = -b / (2 * a);
+                if (t1 >= 0 && t1 <= 1) {
+                    roots[n++] = t1;
+                }
+            }
+            else if (disc > 0) {
+                var discSqrt = Math.sqrt(disc);
+                var t1 = (-b + discSqrt) / (2 * a);
+                var t2 = (-b - discSqrt) / (2 * a);
+                if (t1 >= 0 && t1 <= 1) {
+                    roots[n++] = t1;
+                }
+                if (t2 >= 0 && t2 <= 1) {
+                    roots[n++] = t2;
+                }
+            }
+        }
+        return n;
+    }
+
+    /**
+     * 计算二次贝塞尔方程极限值
+     * @memberOf module:zrender/tool/curve
+     * @param  {number} p0
+     * @param  {number} p1
+     * @param  {number} p2
+     * @return {number}
+     */
+    function quadraticExtremum(p0, p1, p2) {
+        var divider = p0 + p2 - 2 * p1;
+        if (divider === 0) {
+            // p1 is center of p0 and p2 
+            return 0.5;
+        }
+        else {
+            return (p0 - p1) / divider;
+        }
+    }
+
+    /**
+     * 投射点到二次贝塞尔曲线上，返回投射距离。
+     * 投射点有可能会有一个或者多个，这里只返回其中距离最短的一个。
+     * @param {number} x0
+     * @param {number} y0
+     * @param {number} x1
+     * @param {number} y1
+     * @param {number} x2
+     * @param {number} y2
+     * @param {number} x
+     * @param {number} y
+     * @param {Array.<number>} out 投射点
+     * @return {number}
+     */
+    function quadraticProjectPoint(
+        x0, y0, x1, y1, x2, y2,
+        x, y, out
+    ) {
+        // http://pomax.github.io/bezierinfo/#projections
+        var t;
+        var interval = 0.005;
+        var d = Infinity;
+
+        _v0[0] = x;
+        _v0[1] = y;
+
+        // 先粗略估计一下可能的最小距离的 t 值
+        // PENDING
+        for (var _t = 0; _t < 1; _t += 0.05) {
+            _v1[0] = quadraticAt(x0, x1, x2, _t);
+            _v1[1] = quadraticAt(y0, y1, y2, _t);
+            var d1 = vector.distSquare(_v0, _v1);
+            if (d1 < d) {
+                t = _t;
+                d = d1;
+            }
+        }
+        d = Infinity;
+
+        // At most 32 iteration
+        for (var i = 0; i < 32; i++) {
+            if (interval < EPSILON) {
+                break;
+            }
+            var prev = t - interval;
+            var next = t + interval;
+            // t - interval
+            _v1[0] = quadraticAt(x0, x1, x2, prev);
+            _v1[1] = quadraticAt(y0, y1, y2, prev);
+
+            var d1 = vector.distSquare(_v1, _v0);
+
+            if (prev >= 0 && d1 < d) {
+                t = prev;
+                d = d1;
+            }
+            else {
+                // t + interval
+                _v2[0] = quadraticAt(x0, x1, x2, next);
+                _v2[1] = quadraticAt(y0, y1, y2, next);
+                var d2 = vector.distSquare(_v2, _v0);
+                if (next <= 1 && d2 < d) {
+                    t = next;
+                    d = d2;
+                }
+                else {
+                    interval *= 0.5;
+                }
+            }
+        }
+        // t
+        if (out) {
+            out[0] = quadraticAt(x0, x1, x2, t);
+            out[1] = quadraticAt(y0, y1, y2, t);   
+        }
+        // console.log(interval, i);
+        return Math.sqrt(d);
+    }
+
+    return {
+
+        cubicAt: cubicAt,
+
+        cubicDerivativeAt: cubicDerivativeAt,
+
+        cubicRootAt: cubicRootAt,
+
+        cubicExtrema: cubicExtrema,
+
+        cubicSubdivide: cubicSubdivide,
+
+        cubicProjectPoint: cubicProjectPoint,
+
+        quadraticAt: quadraticAt,
+
+        quadraticDerivativeAt: quadraticDerivativeAt,
+
+        quadraticRootAt: quadraticRootAt,
+
+        quadraticExtremum: quadraticExtremum,
+
+        quadraticProjectPoint: quadraticProjectPoint
+    };
+});
+/**
  * @author Kener (@Kener-林峰, kener.linfeng@gmail.com)
  *         pissang(https://github.com/pissang)
  *         errorrik (errorrik@gmail.com)
@@ -11046,12 +11057,12 @@ define('zrender/shape/util/PathProxy',['require','../../tool/vector'],function (
  *                                可以是top, bottom, middle, alphabetic, hanging, ideographic
  */
 define(
-    'zrender/shape/Heart',['require','./Base','./util/PathProxy','zrender/tool/area','../tool/util'],function (require) {
+    'zrender/shape/Heart',['require','./Base','./util/PathProxy','../tool/util'],function (require) {
         
         
         var Base = require('./Base');
         var PathProxy = require('./util/PathProxy');
-        var area = require('zrender/tool/area');
+        // var area = require('zrender/tool/area');
         
         /**
          * @alias module:zrender/shape/Heart
@@ -11121,24 +11132,24 @@ define(
                     this.buildPath(null, style);
                 }
                 return this._pathProxy.fastBoundingRect();
-            },
-
-            isCover: function (x, y) {
-                var originPos = this.getTansform(x, y);
-                x = originPos[0];
-                y = originPos[1];
-                
-                var rect = this.getRect(this.style);
-                if (x >= rect.x
-                    && x <= (rect.x + rect.width)
-                    && y >= rect.y
-                    && y <= (rect.y + rect.height)
-                ) {
-                    return area.isInsidePath(
-                        this._pathProxy.pathCommands, this.style.lineWidth, this.style.brushType, x, y
-                    );
-                }
             }
+
+            // isCover: function (x, y) {
+            //     var originPos = this.getTansform(x, y);
+            //     x = originPos[0];
+            //     y = originPos[1];
+                
+            //     var rect = this.getRect(this.style);
+            //     if (x >= rect.x
+            //         && x <= (rect.x + rect.width)
+            //         && y >= rect.y
+            //         && y <= (rect.y + rect.height)
+            //     ) {
+            //         return area.isInsidePath(
+            //             this._pathProxy.pathCommands, this.style.lineWidth, this.style.brushType, x, y
+            //         );
+            //     }
+            // }
         };
 
         require('../tool/util').inherits(Heart, Base);
@@ -11194,12 +11205,12 @@ define(
  *                                可以是top, bottom, middle, alphabetic, hanging, ideographic
  */
 define(
-    'zrender/shape/Droplet',['require','./Base','./util/PathProxy','zrender/tool/area','../tool/util'],function (require) {
+    'zrender/shape/Droplet',['require','./Base','./util/PathProxy','../tool/util'],function (require) {
         
 
         var Base = require('./Base');
         var PathProxy = require('./util/PathProxy');
-        var area = require('zrender/tool/area');
+        // var area = require('zrender/tool/area');
 
         /**
          * @alias module:zrender/shape/Droplet
@@ -11267,24 +11278,24 @@ define(
                     this.buildPath(null, style);
                 }
                 return this._pathProxy.fastBoundingRect();
-            },
-
-            isCover: function (x, y) {
-                var originPos = this.getTansform(x, y);
-                x = originPos[0];
-                y = originPos[1];
-                
-                var rect = this.getRect(this.style);
-                if (x >= rect.x
-                    && x <= (rect.x + rect.width)
-                    && y >= rect.y
-                    && y <= (rect.y + rect.height)
-                ) {
-                    return area.isInsidePath(
-                        this._pathProxy.pathCommands, this.style.lineWidth, this.style.brushType, x, y
-                    );
-                }
             }
+
+            // isCover: function (x, y) {
+            //     var originPos = this.getTansform(x, y);
+            //     x = originPos[0];
+            //     y = originPos[1];
+                
+            //     var rect = this.getRect(this.style);
+            //     if (x >= rect.x
+            //         && x <= (rect.x + rect.width)
+            //         && y >= rect.y
+            //         && y <= (rect.y + rect.height)
+            //     ) {
+            //         return area.isInsidePath(
+            //             this._pathProxy.pathCommands, this.style.lineWidth, this.style.brushType, x, y
+            //         );
+            //     }
+            // }
         };
 
         require('../tool/util').inherits(Droplet, Base);
